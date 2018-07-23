@@ -1,23 +1,56 @@
+var express 	= require("express"),
+    app 		= express(),
+    bodyParser 	= require("body-parser"),
+    mongoose 	= require("mongoose");
 
-var express = require("express");
-var app = express();
-var bodyParser = require("body-parser");
-
+mongoose.connect("mongodb://localhost/dealership");
 app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
 
-var inventory = [
-	{name: "2016 Chrysler 200", image: "http://images.dealercenter.net/640/480/201806-9051811d92b441cf9928f493c20657e0.jpg"},
-	{name: "2015 Toyota Corolla", image: "http://images.dealercenter.net/640/480/201805-00124ec2ef5e49c2b47ffc832c2a854d.jpg"},
-	{name: "2015 GMC Seirra", image: "http://images.dealercenter.net/640/480/201807-43c7f3b05c7a4ecb9ddef8161fb4eeea.jpg"}
-	];
+//DB scheema
+var vehicleSchema = new mongoose.Schema({
+	make: String,
+	model: String,
+	year: String,
+	image: String
+});
+
+//The collection will be named after what in in the "" if it does not exist yet it will be created in the 
+//db specified in the mongoose.conncect
+var Inventory = mongoose.model("inventory", vehicleSchema);
+
+// Inventory.create({
+// 	make:"Chrysler",
+// 	model: "200",
+// 	year: 2016,
+// 	image:"http://images.dealercenter.net/240/180/201806-9051811d92b441cf9928f493c20657e0.jpg"
+// }, function(err, car){
+// 	if(err){
+// 		console.log(err);
+// 	}
+// 	else{
+// 		console.log("New car inserted");
+// 		console.log(car);
+// 	}
+// });
+
 app.get("/", function(req, res){
 	res.render("landing");
 });
 
 app.get("/inventory", function(req, res){
+	//Grab all vehicles
 
-	res.render("inventory", {inventory:inventory});
+	Inventory.find({}, function(err, cars){
+		if(err){
+			console.log(err);
+		}
+		else{
+			//inventory is being populated by the cars variable returned from our callback funciton
+			res.render("inventory", {inventory:cars});			
+		}
+	});
+
 
 });
 
@@ -27,13 +60,28 @@ app.get("/inventory/new", function(req, res){
 });
 
 app.post("/inventory", function(req, res){
-	//get data from form and add to array of campgrounds
-	var name = req.body.name;
+	//get data from form and add to database
+	var make  = req.body.make;
+	var model = req.body.model;
+	var year  = req.body.year;
 	var image = req.body.image;
-	var newVehicle = {name: name, image:image};
-	inventory.push(newVehicle);
-	//redirect back to campgounds page
-	res.redirect("/inventory");
+	var NewEntry = {
+		make:make,
+		model:model, 
+		year:year, 
+		image:image
+	};
+
+	Inventory.create(NewEntry, function(err, newentry){
+		if(err){
+			console.log(err);
+			console.log("error inserting new entry");
+		}
+		else{
+			//redirect back to campgounds page
+			res.redirect("/inventory");
+		}
+	});
 });
 
 app.listen(3000, function(){
