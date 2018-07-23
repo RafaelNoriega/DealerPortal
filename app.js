@@ -3,7 +3,7 @@ var express 	= require("express"),
     bodyParser 	= require("body-parser"),
     mongoose 	= require("mongoose");
 
-mongoose.connect("mongodb://localhost/dealership");
+mongoose.connect("mongodb://localhost:27017/dealership",  { useNewUrlParser: true });
 app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
 
@@ -61,18 +61,14 @@ app.get("/inventory/new", function(req, res){
 
 app.post("/inventory", function(req, res){
 	//get data from form and add to database
+	console.log(req.body);
+
 	var make  = req.body.make;
 	var model = req.body.model;
 	var year  = req.body.year;
 	var image = req.body.image;
-	var NewEntry = {
-		make:make,
-		model:model, 
-		year:year, 
-		image:image
-	};
-
-	Inventory.create(NewEntry, function(err, newentry){
+	var NewEntry = {make: make, model: model, year: year, image: image};
+	Inventory.create(NewEntry, function(err, Newcar){
 		if(err){
 			console.log(err);
 			console.log("error inserting new entry");
