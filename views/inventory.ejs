@@ -1,0 +1,35 @@
+<% include partials/header %> 
+<div class="container">
+
+	<header class="jumbotron text-center">
+		<div class="container">
+			<h1>Dealership</h1>
+			<p>Great cars for everyone.</p>
+			<p><a class="btn-lg btn-primary" href="/inventory/new">Add new vehicle</a></p>
+		</div>
+	</header>
+
+	<div class="row">
+		<div class="col-lg-12">
+			<h3>Our inventory</h3>
+		</div>	
+	</div>
+
+	<div class="row">
+		<% inventory.forEach(function(car){ %>
+			<div class="col-md-3 col-sm-6">
+				<div class="thumbnail">
+					<img src=" <%= car.image %> ">
+					<div class="caption">
+					<h4> <%= car.name %> </h4>
+					</div>
+				</div>	
+			</div>
+				
+		<% }); %>	
+	</div>
+	
+
+</div>
+
+<% include partials/footer %>
